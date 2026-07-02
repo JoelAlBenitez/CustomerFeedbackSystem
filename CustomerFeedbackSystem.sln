@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Load", "Load", "{02EA681E-C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{0543DE08-018D-45D5-8DF9-A6EEDED6F69F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerFeedbackSystem.Load", "CustomerFeedbackSystem.Load\CustomerFeedbackSystem.Load.csproj", "{D9FB972F-A979-40FE-A7A1-1E0B9B08D7A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerFeedbackSystem.Data", "CustomerFeedbackSystem.Load\CustomerFeedbackSystem.Data.csproj", "{D9FB972F-A979-40FE-A7A1-1E0B9B08D7A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerFeedbackSystem.Data", "CustomerFeedbackSystem.Data\CustomerFeedbackSystem.Data.csproj", "{494A23B2-B4B7-449C-899A-791B4BD855F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerFeedbackSystem.Load", "CustomerFeedbackSystem.Data\CustomerFeedbackSystem.Load.csproj", "{494A23B2-B4B7-449C-899A-791B4BD855F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

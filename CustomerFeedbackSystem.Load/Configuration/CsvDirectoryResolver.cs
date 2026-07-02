@@ -1,10 +1,5 @@
 namespace CustomerFeedbackSystem.Load.Configuration;
 
-/// <summary>
-/// Locates the "CSV opiniones de clientes" folder by walking up from the running
-/// executable's directory, since it lives outside the solution folder and its
-/// depth relative to bin/Debug/net9.0 is not something we want to hardcode.
-/// </summary>
 public static class CsvDirectoryResolver
 {
     private const string CsvDirectoryName = "CSV opiniones de clientes";

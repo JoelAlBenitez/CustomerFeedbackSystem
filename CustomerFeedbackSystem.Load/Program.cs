@@ -1,4 +1,5 @@
 using CustomerFeedbackSystem.Load.Configuration;
+using CustomerFeedbackSystem.Load.Orchestration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,27 +22,34 @@ using var host = builder.Build();
 
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
-var connectionString = host.Services
-    .GetRequiredService<IConfiguration>()
-    .GetConnectionString(ConnectionOptions.ConnectionStringName);
-
-if (string.IsNullOrWhiteSpace(connectionString))
+try
 {
-    logger.LogError(
-        "Missing connection string '{ConnectionStringName}'. Configure it with: dotnet user-secrets set \"ConnectionStrings:{ConnectionStringName}\" \"<your connection string>\"",
-        ConnectionOptions.ConnectionStringName,
-        ConnectionOptions.ConnectionStringName);
+    var connectionString = host.Services
+        .GetRequiredService<IConfiguration>()
+        .GetConnectionString(ConnectionOptions.ConnectionStringName);
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        logger.LogError(
+            "Missing connection string '{ConnectionStringName}'. Configure it with: dotnet user-secrets set \"ConnectionStrings:{ConnectionStringName}\" \"<your connection string>\"",
+            ConnectionOptions.ConnectionStringName,
+            ConnectionOptions.ConnectionStringName);
+        return 1;
+    }
+
+    var csvOptions = host.Services.GetRequiredService<IOptions<CsvSourcesOptions>>().Value;
+    csvOptions.BaseDirectory = CsvDirectoryResolver.Resolve(csvOptions.BaseDirectory);
+
+    logger.LogInformation("CustomerFeedbackSystem.Load starting up.");
+    logger.LogInformation("CSV source directory: {CsvDirectory}", csvOptions.BaseDirectory);
+
+    var pipeline = new EtlPipeline(connectionString, csvOptions, host.Services.GetRequiredService<ILogger<EtlPipeline>>());
+    var report = await pipeline.RunAsync();
+
+    return report.TotalInserted > 0 || report.TotalRead == 0 ? 0 : 1;
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "The load run failed and was rolled back. No data was changed.");
     return 1;
 }
-
-var csvOptions = host.Services.GetRequiredService<IOptions<CsvSourcesOptions>>().Value;
-csvOptions.BaseDirectory = CsvDirectoryResolver.Resolve(csvOptions.BaseDirectory);
-
-logger.LogInformation("CustomerFeedbackSystem.Load starting up.");
-logger.LogInformation("CSV source directory: {CsvDirectory}", csvOptions.BaseDirectory);
-logger.LogInformation("Connection string configured: {IsConfigured}", !string.IsNullOrWhiteSpace(connectionString));
-
-// The ETL pipeline is wired up in a later step; for now this confirms the
-// host, configuration and User Secrets are correctly plumbed end to end.
-
-return 0;
