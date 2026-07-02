@@ -2,7 +2,6 @@ using CustomerFeedbackSystem.Data.Reporting;
 
 namespace CustomerFeedbackSystem.Load.Presentation;
 
-/// <summary>Renders a LoadReport as a bordered console summary: header banner, per-source table, rejection detail and duration.</summary>
 internal static class ConsoleReportRenderer
 {
     public static void Render(LoadReport report, string systemName, DateTime executedAt)

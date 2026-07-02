@@ -1,11 +1,6 @@
 namespace CustomerFeedbackSystem.Load.Presentation;
 
-/// <summary>
-/// Animated "working..." indicator on the current console line while an
-/// awaited operation runs. No-ops when output is redirected (a log file has
-/// no use for spinner frames) so it never corrupts a captured Task Scheduler
-/// log.
-/// </summary>
+
 internal sealed class ConsoleSpinner : IAsyncDisposable
 {
     private static readonly char[] Frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
@@ -34,7 +29,7 @@ internal sealed class ConsoleSpinner : IAsyncDisposable
             }
             catch (TaskCanceledException)
             {
-                // Expected on Dispose; the loop exits on the next check.
+               
             }
         }
     }
@@ -54,7 +49,6 @@ internal sealed class ConsoleSpinner : IAsyncDisposable
         }
         catch (OperationCanceledException)
         {
-            // Expected.
         }
 
         Console.Write("\r" + new string(' ', _message.Length + 2) + "\r");
