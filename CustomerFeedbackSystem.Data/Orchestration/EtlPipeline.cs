@@ -42,10 +42,7 @@ public sealed class EtlPipeline
 
         try
         {
-            // Kept at Debug (not Information) on purpose: Program.cs shows an
-            // animated spinner while this runs, and interleaving step-by-step
-            // log lines with it would make a mess of the console. They still
-            // show up if someone raises the configured log level.
+          
             _logger.LogDebug("Resetting owned tables for a full refresh...");
             await new TableResetService().ResetAllAsync(connection, transaction, cancellationToken);
 
@@ -70,10 +67,6 @@ public sealed class EtlPipeline
         {
             _logger.LogError(ex, "Load run failed — rolling back, database left unchanged.");
 
-            // A broken connection (e.g. a dropped network/pipe mid-bulk-copy)
-            // already discards the transaction server-side; attempting to roll
-            // it back here would throw a second, unrelated exception that masks
-            // the real cause. Only roll back if the connection is still usable.
             if (connection.State == System.Data.ConnectionState.Open)
             {
                 try
