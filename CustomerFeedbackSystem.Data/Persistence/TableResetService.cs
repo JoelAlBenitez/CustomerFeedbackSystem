@@ -26,11 +26,13 @@ public sealed class TableResetService
         {
             await using var deleteCommand = connection.CreateCommand();
             deleteCommand.Transaction = transaction;
+            deleteCommand.CommandTimeout = 120;
             deleteCommand.CommandText = $"DELETE FROM dbo.[{table}]";
             await deleteCommand.ExecuteNonQueryAsync(cancellationToken);
 
             await using var reseedCommand = connection.CreateCommand();
             reseedCommand.Transaction = transaction;
+            reseedCommand.CommandTimeout = 120;
             reseedCommand.CommandText = $"DBCC CHECKIDENT ('dbo.{table}', RESEED, 0)";
             await reseedCommand.ExecuteNonQueryAsync(cancellationToken);
         }

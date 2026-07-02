@@ -1,5 +1,7 @@
 using CustomerFeedbackSystem.Data.Configuration;
 using CustomerFeedbackSystem.Data.Orchestration;
+using CustomerFeedbackSystem.Data.Reporting;
+using CustomerFeedbackSystem.Load.Presentation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,10 +10,6 @@ using Microsoft.Extensions.Options;
 
 var exitCode = await RunAsync(args);
 
-// Keeps the window open when launched interactively (F5, double-click) so the
-// load summary can actually be read. Skipped when input is redirected, which
-// is how Task Scheduler / unattended runs are expected to be configured —
-// otherwise a scheduled run would hang forever waiting for a keypress.
 if (!Console.IsInputRedirected)
 {
     Console.WriteLine();
@@ -61,7 +59,15 @@ static async Task<int> RunAsync(string[] args)
         logger.LogInformation("CSV source directory: {CsvDirectory}", csvOptions.BaseDirectory);
 
         var pipeline = new EtlPipeline(connectionString, csvOptions, host.Services.GetRequiredService<ILogger<EtlPipeline>>());
-        var report = await pipeline.RunAsync();
+        var startedAt = DateTime.Now;
+
+        LoadReport report;
+        await using (new ConsoleSpinner("Procesando carga ETL..."))
+        {
+            report = await pipeline.RunAsync();
+        }
+
+        ConsoleReportRenderer.Render(report, "CustomerFeedbackSystem — Proceso de Carga ETL", startedAt);
 
         return report.TotalInserted > 0 || report.TotalRead == 0 ? 0 : 1;
     }

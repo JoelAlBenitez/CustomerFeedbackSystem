@@ -28,6 +28,7 @@ public sealed class IdentityAllocator
 
         await using var command = _connection.CreateCommand();
         command.Transaction = _transaction;
+        command.CommandTimeout = 120;
         command.CommandText = $"SELECT ISNULL(MAX([{identityColumn}]), 0) FROM dbo.[{tableName}]";
 
         var maxValue = await command.ExecuteScalarAsync(cancellationToken);

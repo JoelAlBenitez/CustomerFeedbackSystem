@@ -1,11 +1,17 @@
-using CustomerFeedbackSystem.Data.Common;
-using Microsoft.Extensions.Logging;
-
 namespace CustomerFeedbackSystem.Data.Reporting;
 
+/// <summary>
+/// Accumulates per-source stats for a run. Purely data — how this gets
+/// displayed (console table, log lines, etc.) is a presentation concern that
+/// belongs to whichever project is driving the run, not to this library.
+/// </summary>
 public sealed class LoadReport
 {
     private readonly List<SourceLoadStats> _sources = [];
+
+    public IReadOnlyList<SourceLoadStats> Sources => _sources;
+
+    public TimeSpan Elapsed { get; set; }
 
     public SourceLoadStats ForSource(string sourceName)
     {
@@ -25,26 +31,4 @@ public sealed class LoadReport
     public int TotalInserted => _sources.Sum(s => s.Inserted);
 
     public int TotalRejected => _sources.Sum(s => s.Rejected);
-
-    public void Print(ILogger logger, TimeSpan elapsed)
-    {
-        logger.LogInformation("========== Load summary ==========");
-        foreach (var source in _sources)
-        {
-            logger.LogInformation(
-                "{Source,-22} read={Read,5} inserted={Inserted,5} rejected={Rejected,5}",
-                source.SourceName, source.Read, source.Inserted, source.Rejected);
-
-            foreach (var (reason, count) in source.RejectionsByReason)
-            {
-                logger.LogInformation("    rejected [{Reason}]: {Count}", reason, count);
-            }
-        }
-
-        logger.LogInformation("-----------------------------------");
-        logger.LogInformation(
-            "TOTAL read={Read} inserted={Inserted} rejected={Rejected} elapsed={Elapsed}",
-            TotalRead, TotalInserted, TotalRejected, elapsed);
-        logger.LogInformation("===================================");
-    }
 }
