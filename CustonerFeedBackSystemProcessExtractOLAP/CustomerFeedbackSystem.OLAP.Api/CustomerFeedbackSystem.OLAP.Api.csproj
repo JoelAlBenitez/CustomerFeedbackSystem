@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>CustomerFeedbackSystem.OLAP.Api</RootNamespace>
+    <UserSecretsId>dotnet-CustomerFeedbackSystem.OLAP.Api-6b0c1f4e-9d21-4a77-8c53-2f1a9e6d4b08</UserSecretsId>
+  </PropertyGroup>
+
+  <!--
+    No ProjectReference to Core or Infrastructure, on purpose (doc 02 §1). This project is a
+    neighbour of the ETL solution, not a layer of it: the Worker reaches it over HTTP and
+    nothing else. Replacing it with a real social API must be a configuration change.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+  </ItemGroup>
+
+</Project>

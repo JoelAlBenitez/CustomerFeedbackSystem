@@ -2,3 +2,16 @@
 docs/
 bin/
 obj/
+
+# Catalyst caches the Spanish model here between runs (blueprint doc 11 §5).
+# It is a downloaded artefact, not source.
+**/catalyst-models/
+
+# Serilog rolling files (blueprint doc 13 §2).
+**/logs/
+
+*.user
+
+# appsettings.json is deliberately NOT ignored: it is versioned because it documents the
+# configuration shape the projects expect, and it is exactly why it holds no secrets.
+# Secrets live in User Secrets, outside the repository tree (blueprint doc 12 §3).

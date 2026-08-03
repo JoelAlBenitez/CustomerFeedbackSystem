@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RootNamespace>CustomerFeedbackSystem.OLAP.Core</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    Blueprint doc 03 §5 asks for zero packages here; doc 13 §2 asks every layer to log
+    through ILogger<T>. Logging.Abstractions is the single reconciliation: a contract-only
+    package with no provider, no I/O and no technology behind it, so the rule that actually
+    matters — Core knows nothing about SQL Server, CsvHelper, HTTP or ASP.NET (doc 02 §1) —
+    still holds. Any other PackageReference here is a design smell.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+</Project>

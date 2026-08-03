@@ -1,0 +1,27 @@
+@HostAddress = https://localhost:7053
+@ApiKey = <paste the same key configured in User Secrets>
+
+### Health — exempt from the API key, this is what the Worker probes before extracting.
+GET {{HostAddress}}/health
+Accept: application/json
+
+### First page.
+GET {{HostAddress}}/api/v1/social-comments?page=1&pageSize=10
+Accept: application/json
+X-Api-Key: {{ApiKey}}
+
+### Oversized pageSize gets clamped to MaxPageSize (1000), not rejected.
+GET {{HostAddress}}/api/v1/social-comments?page=1&pageSize=99999
+Accept: application/json
+X-Api-Key: {{ApiKey}}
+
+### No key — expect 401.
+GET {{HostAddress}}/api/v1/social-comments?page=1&pageSize=10
+Accept: application/json
+
+### page=0 — expect 400.
+GET {{HostAddress}}/api/v1/social-comments?page=0
+Accept: application/json
+X-Api-Key: {{ApiKey}}
+
+###
