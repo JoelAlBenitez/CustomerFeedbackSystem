@@ -3,15 +3,24 @@ docs/
 bin/
 obj/
 
-# Catalyst caches the Spanish model here between runs (blueprint doc 11 §5).
-# It is a downloaded artefact, not source.
+# Catalyst cachea aquí el modelo español entre corridas (blueprint doc 11 §5).
+# Es un artefacto descargado, no código fuente.
 **/catalyst-models/
 
-# Serilog rolling files (blueprint doc 13 §2).
+# Archivos rotativos de Serilog (blueprint doc 13 §2).
 **/logs/
 
 *.user
 
-# appsettings.json is deliberately NOT ignored: it is versioned because it documents the
-# configuration shape the projects expect, and it is exactly why it holds no secrets.
-# Secrets live in User Secrets, outside the repository tree (blueprint doc 12 §3).
+# --- No se suben al repositorio (decisión del proyecto) ---
+# El proyecto de pruebas, el README y los scripts SQL de la solución OLAP quedan
+# en local. Siguen existiendo en el árbol de trabajo: `dotnet test` y `dotnet build`
+# funcionan igual, solo que git no los versiona.
+CustonerFeedBackSystemProcessExtractOLAP/CustomerFeedbackSystem.OLAP.Tests/
+CustonerFeedBackSystemProcessExtractOLAP/README.md
+CustonerFeedBackSystemProcessExtractOLAP/sql/
+
+# appsettings.json NO se ignora a propósito: se versiona porque documenta la forma
+# de configuración que los proyectos esperan, y es exactamente por eso que no
+# contiene ni un secreto. Los secretos viven en User Secrets, fuera del árbol del
+# repositorio (blueprint doc 12 §3).
