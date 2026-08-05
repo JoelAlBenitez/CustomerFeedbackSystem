@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CustomerFeedbackSystem.OLAP.Core.Abstractions;
 using CustomerFeedbackSystem.OLAP.Core.Common;
+using CustomerFeedbackSystem.OLAP.Core.Common.Errors;
 using CustomerFeedbackSystem.OLAP.Core.Reporting;
 using Microsoft.Extensions.Logging;
 
@@ -104,8 +105,7 @@ public sealed class DimensionLoadPipeline
         catch (Exception ex)
         {
             _logger.LogError(ex, "Dimension {Dimension} threw an unexpected exception.", loader.DimensionName);
-            return Result<DimensionLoadStats>.Failure(
-                new Common.Errors.DimensionLoadError(loader.DimensionName, ex.Message));
+            return Result<DimensionLoadStats>.Failure(new DimensionLoadError(loader.DimensionName, ex.Message));
         }
 
         stopwatch.Stop();

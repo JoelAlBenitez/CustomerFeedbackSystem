@@ -28,6 +28,8 @@ public sealed class CatalystSpanishAnalyzer : ITokenAnalyzer
         _logger = logger;
     }
 
+    public bool IsReady => _pipeline is not null;
+
     public async Task WarmUpAsync(CancellationToken cancellationToken = default)
     {
         try

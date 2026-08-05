@@ -6,6 +6,7 @@ using CustomerFeedbackSystem.OLAP.Infrastructure.Configuration;
 using CustomerFeedbackSystem.OLAP.Infrastructure.Extraction.Api;
 using CustomerFeedbackSystem.OLAP.Infrastructure.Extraction.Csv;
 using CustomerFeedbackSystem.OLAP.Infrastructure.Extraction.Database;
+using CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 using CustomerFeedbackSystem.OLAP.Infrastructure.Persistence;
 using CustomerFeedbackSystem.OLAP.Infrastructure.Text;
 using Microsoft.Extensions.Options;
@@ -54,7 +55,44 @@ public static class ServiceCollectionExtensions
             sp.GetRequiredService<IOptions<ApiSourceOptions>>().Value.Enabled);
 
         services.AddSingleton<ExtractionPipeline>();
-        services.AddHostedService<ExtractionWorker>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddDimensionLoad(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions<DimensionLoadOptions>()
+            .Bind(configuration.GetSection(DimensionLoadOptions.SectionName))
+            .Validate(o => o.CommandTimeoutSeconds > 0, "Load:CommandTimeoutSeconds must be greater than zero.")
+            .Validate(o => o.MinKeywordFrequency > 0, "Load:MinKeywordFrequency must be greater than zero.")
+            .Validate(o => o.DateDimensionPaddingYears is >= 0 and <= 10,
+                "Load:DateDimensionPaddingYears must be between 0 and 10.")
+            .ValidateOnStart();
+
+        services.AddSingleton<SqlDimensionLoadSession>();
+        services.AddSingleton<IDimensionLoadSession>(sp => sp.GetRequiredService<SqlDimensionLoadSession>());
+        services.AddSingleton<IDimensionResetService, DimensionResetService>();
+        services.AddSingleton<StagingReadinessProbe>();
+
+        // Execution order lives in each loader's Order, not in this registration.
+        services.AddSingleton<IDimensionLoader, DimFechaLoader>();
+        services.AddSingleton<IDimensionLoader, DimFuenteLoader>();
+        services.AddSingleton<IDimensionLoader, DimClasificacionLoader>();
+        services.AddSingleton<IDimensionLoader, DimProductoLoader>();
+        services.AddSingleton<IDimensionLoader, DimClienteLoader>();
+        services.AddSingleton<IDimensionLoader, PalabraClaveLoader>();
+
+        services.AddSingleton<DimensionLoadPipeline>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddEtlWorker(this IServiceCollection services, EtlPhase phase)
+    {
+        services.AddSingleton(phase);
+        services.AddHostedService<EtlWorker>();
 
         return services;
     }

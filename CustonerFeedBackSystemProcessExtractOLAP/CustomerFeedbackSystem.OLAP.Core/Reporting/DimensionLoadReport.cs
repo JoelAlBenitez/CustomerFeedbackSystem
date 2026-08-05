@@ -10,7 +10,6 @@ public sealed class DimensionLoadReport
 
     public TimeSpan Elapsed { get; set; }
 
-    // True only when the single transaction committed. Nothing is in the warehouse otherwise.
     public bool Committed { get; set; }
 
     public Error? FailureReason { get; set; }

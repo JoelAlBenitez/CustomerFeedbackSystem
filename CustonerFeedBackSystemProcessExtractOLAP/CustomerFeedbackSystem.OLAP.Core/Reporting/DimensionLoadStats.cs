@@ -12,12 +12,10 @@ public sealed class DimensionLoadStats
 
     public string TableName { get; }
 
-    // Source rows examined: staging rows, OLTP rows or distinct lemmas, depending on the loader.
     public long Read { get; private set; }
 
     public long Written { get; private set; }
 
-    // Read but deliberately not written: unparseable dates, lemmas below the frequency threshold.
     public long Discarded { get; private set; }
 
     public bool Failed { get; private set; }

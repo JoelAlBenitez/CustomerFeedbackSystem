@@ -9,7 +9,6 @@ public interface IDimensionLoader
 
     string TableName { get; }
 
-    // Ascending execution order inside the single load transaction.
     int Order { get; }
 
     Task<Result<DimensionLoadStats>> LoadAsync(CancellationToken cancellationToken = default);

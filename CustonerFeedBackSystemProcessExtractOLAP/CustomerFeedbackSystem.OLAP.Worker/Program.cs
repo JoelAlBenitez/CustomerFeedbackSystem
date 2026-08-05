@@ -1,5 +1,6 @@
 using System.Text;
 using CustomerFeedbackSystem.OLAP.Infrastructure.Configuration;
+using CustomerFeedbackSystem.OLAP.Worker;
 using CustomerFeedbackSystem.OLAP.Worker.DependencyInjection;
 using Serilog;
 
@@ -37,7 +38,12 @@ builder.Services.AddSerilog((_, config) => config
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 30));
 
+// --phase Extract | Load | Full   (default Full: E and then L in one run)
+var phase = EtlPhaseParser.Parse(builder.Configuration[EtlPhaseParser.ConfigurationKey]);
+
 builder.Services.AddExtractionPipeline(builder.Configuration);
+builder.Services.AddDimensionLoad(builder.Configuration);
+builder.Services.AddEtlWorker(phase);
 
 var host = builder.Build();
 await host.RunAsync();
