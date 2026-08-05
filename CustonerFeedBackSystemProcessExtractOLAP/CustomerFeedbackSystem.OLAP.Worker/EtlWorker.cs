@@ -21,7 +21,7 @@ public sealed class EtlWorker : BackgroundService
     private readonly ILogger<EtlWorker> _logger;
 
     public EtlWorker(
-        EtlPhase phase,
+        EtlRunOptions runOptions,
         ExtractionPipeline extractionPipeline,
         DimensionLoadPipeline dimensionLoadPipeline,
         OltpAvailabilityProbe oltpProbe,
@@ -30,7 +30,7 @@ public sealed class EtlWorker : BackgroundService
         IHostApplicationLifetime lifetime,
         ILogger<EtlWorker> logger)
     {
-        _phase = phase;
+        _phase = runOptions.Phase;
         _extractionPipeline = extractionPipeline;
         _dimensionLoadPipeline = dimensionLoadPipeline;
         _oltpProbe = oltpProbe;
@@ -93,8 +93,6 @@ public sealed class EtlWorker : BackgroundService
 
         Environment.ExitCode = 1;
 
-        // Loading dimensions built from staging that a failed source left stale would silently
-        // mix two runs. The person decides whether to load anyway with --phase Load.
         if (_phase == EtlPhase.Full)
         {
             _logger.LogError(

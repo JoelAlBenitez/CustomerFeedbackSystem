@@ -40,9 +40,6 @@ public sealed class DimensionResetService : IDimensionResetService
                 return guard;
             }
 
-            // TRUNCATE is not an option: every one of these tables is referenced by a foreign key
-            // from Hechos, and SQL Server refuses to truncate a referenced table even when the
-            // referencing one is empty.
             foreach (var (table, identityColumn) in DimensionTables.IdentityDimensions)
             {
                 await ExecuteAsync($"DELETE FROM {table};", cancellationToken);
@@ -64,9 +61,6 @@ public sealed class DimensionResetService : IDimensionResetService
         }
     }
 
-    // A full dimension refresh reassigns every surrogate key, which would leave any existing fact
-    // row pointing at the wrong member. Refusing is better than silently corrupting or silently
-    // deleting somebody else's data.
     private async Task<Result> EnsureNoFactsAsync(CancellationToken cancellationToken)
     {
         await using var command = _session.Connection.CreateCommand();
@@ -74,14 +68,19 @@ public sealed class DimensionResetService : IDimensionResetService
         command.CommandTimeout = _options.CommandTimeoutSeconds;
         command.CommandText = FactCountQuery;
 
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
-        if (!await reader.ReadAsync(cancellationToken))
-        {
-            return Result.Success();
-        }
+        int opiniones;
+        int palabras;
 
-        var opiniones = reader.GetInt32(0);
-        var palabras = reader.GetInt32(1);
+        await using (var reader = await command.ExecuteReaderAsync(cancellationToken))
+        {
+            if (!await reader.ReadAsync(cancellationToken))
+            {
+                return Result.Success();
+            }
+
+            opiniones = reader.GetInt32(0);
+            palabras = reader.GetInt32(1);
+        }
 
         if (opiniones == 0 && palabras == 0)
         {

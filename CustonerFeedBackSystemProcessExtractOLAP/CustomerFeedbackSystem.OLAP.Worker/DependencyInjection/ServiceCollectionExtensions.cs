@@ -76,7 +76,6 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDimensionResetService, DimensionResetService>();
         services.AddSingleton<StagingReadinessProbe>();
 
-        // Execution order lives in each loader's Order, not in this registration.
         services.AddSingleton<IDimensionLoader, DimFechaLoader>();
         services.AddSingleton<IDimensionLoader, DimFuenteLoader>();
         services.AddSingleton<IDimensionLoader, DimClasificacionLoader>();
@@ -91,7 +90,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddEtlWorker(this IServiceCollection services, EtlPhase phase)
     {
-        services.AddSingleton(phase);
+        services.AddSingleton(new EtlRunOptions { Phase = phase });
         services.AddHostedService<EtlWorker>();
 
         return services;

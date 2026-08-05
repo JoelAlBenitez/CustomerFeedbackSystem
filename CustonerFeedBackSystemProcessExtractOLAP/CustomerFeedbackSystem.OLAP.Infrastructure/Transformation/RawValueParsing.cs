@@ -3,8 +3,6 @@ using CustomerFeedbackSystem.OLAP.Core.Dimensions;
 
 namespace CustomerFeedbackSystem.OLAP.Infrastructure.Transformation;
 
-// Staging stores everything as text on purpose (doc 14 §1); this is where the T phase decides
-// how to read it back.
 public static class RawValueParsing
 {
     private static readonly string[] DateFormats =
@@ -43,8 +41,6 @@ public static class RawValueParsing
         return false;
     }
 
-    // "C007", "P016" and plain "8537" all resolve to the same int, replicating
-    // IdParsing.ExtractNumericId of the OLTP project (doc 17 §2.1).
     public static bool TryExtractNumericId(string? raw, out int id)
     {
         id = 0;

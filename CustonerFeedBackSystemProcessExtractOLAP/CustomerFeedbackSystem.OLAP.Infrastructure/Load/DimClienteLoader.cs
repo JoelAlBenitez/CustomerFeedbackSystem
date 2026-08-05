@@ -13,11 +13,10 @@ namespace CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 
 public sealed class DimClienteLoader : IDimensionLoader
 {
-    private const int NombreWidth = 100;
-
-    // SK 1 and 2 are reserved for the two members that are not people.
     public const int UnknownKey = 1;
     public const int AnonymousKey = 2;
+
+    private const int NombreWidth = 100;
 
     private static readonly string[] Columns =
         ["SkCliente", "NkCliente", "Nombre", "Pais", "RangoEdad", "TipoCliente", "EsAnonimo"];
@@ -59,8 +58,8 @@ public sealed class DimClienteLoader : IDimensionLoader
 
         var rows = new List<DimCliente>
         {
-            DimCliente.SpecialMember(UnknownKey, DimensionSentinels.UnknownMember),
-            DimCliente.SpecialMember(AnonymousKey, DimensionSentinels.AnonymousMember),
+            BuildSpecialMember(UnknownKey, DimensionSentinels.UnknownMember),
+            BuildSpecialMember(AnonymousKey, DimensionSentinels.AnonymousMember),
         };
 
         var nextKey = AnonymousKey + 1;
@@ -81,10 +80,6 @@ public sealed class DimClienteLoader : IDimensionLoader
 
                 var nombre = reader.GetString(1);
 
-                // The OLTP has its own sentinel customer ('-', cliente.desconocido@sistema.local,
-                // built by ClienteTransformer.BuildSentinel). It is the same concept as the
-                // "Anónimo" member above, so it does not get a second row of its own: facts
-                // pointing at it resolve to SK 2.
                 if (DimensionSentinels.IsMissing(nombre))
                 {
                     stats.RecordDiscarded();
@@ -97,8 +92,6 @@ public sealed class DimClienteLoader : IDimensionLoader
                     SkCliente = nextKey++,
                     NkCliente = reader.GetInt32(0),
                     Nombre = RawValueParsing.Truncate(nombre, NombreWidth),
-
-                    // No source of this project carries these three attributes.
                     Pais = DimensionSentinels.UnknownAttribute,
                     RangoEdad = DimensionSentinels.UnknownAttribute,
                     TipoCliente = DimensionSentinels.UnknownAttribute,
@@ -127,4 +120,15 @@ public sealed class DimClienteLoader : IDimensionLoader
 
         return Result<DimensionLoadStats>.Success(stats);
     }
+
+    private static DimCliente BuildSpecialMember(int skCliente, string nombre) => new()
+    {
+        SkCliente = skCliente,
+        NkCliente = null,
+        Nombre = nombre,
+        Pais = DimensionSentinels.UnknownAttribute,
+        RangoEdad = DimensionSentinels.UnknownAttribute,
+        TipoCliente = DimensionSentinels.UnknownAttribute,
+        EsAnonimo = true,
+    };
 }

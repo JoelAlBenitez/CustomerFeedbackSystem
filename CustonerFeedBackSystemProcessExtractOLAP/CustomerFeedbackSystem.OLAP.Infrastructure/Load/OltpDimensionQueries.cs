@@ -1,7 +1,5 @@
 namespace CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 
-// The conformed part of the model comes from the transactional database, not from staging:
-// staging only carries the identifiers, the descriptive attributes live in the OLTP.
 public static class OltpDimensionQueries
 {
     public const string Productos = """

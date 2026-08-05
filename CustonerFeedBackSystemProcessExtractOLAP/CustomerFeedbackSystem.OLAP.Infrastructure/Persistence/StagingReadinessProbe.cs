@@ -8,8 +8,6 @@ using Microsoft.Extensions.Options;
 
 namespace CustomerFeedbackSystem.OLAP.Infrastructure.Persistence;
 
-// The load reads from staging, so the E phase has to have run. Failing here with a sentence the
-// person can act on beats failing later with an empty DimFecha and no explanation.
 public sealed class StagingReadinessProbe
 {
     private readonly string _connectionString;

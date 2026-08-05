@@ -2,13 +2,8 @@ namespace CustomerFeedbackSystem.OLAP.Worker;
 
 public enum EtlPhase
 {
-    // Only E: the three extractors into Staging.*.
     Extract,
-
-    // Only L: staging and the OLTP into Dimenciones.*.
     Load,
-
-    // E then L in a single run. The load is skipped if any source failed extracting.
     Full,
 }
 

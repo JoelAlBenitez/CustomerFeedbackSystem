@@ -1,7 +1,5 @@
 namespace CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 
-// Staging lives in the same database as the dimensions, so these run on the load transaction's
-// own connection and see exactly what the E phase committed.
 public static class StagingQueries
 {
     public const string DistinctDates = """
@@ -20,8 +18,6 @@ public static class StagingQueries
         SELECT DISTINCT PlataformaRaw FROM Staging.stgRedesSocialesAPI ORDER BY PlataformaRaw;
         """;
 
-    // UNION ALL, never UNION: two identical comments from different channels are two opinions,
-    // and collapsing them here would understate every lemma's frequency.
     public const string AllComments = """
         SELECT ComentariosRaw     AS Texto FROM Staging.stgEncuestasCSV
         UNION ALL

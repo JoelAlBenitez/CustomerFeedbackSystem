@@ -39,8 +39,6 @@ public sealed class PalabraClaveLoader : IDimensionLoader
 
     public async Task<Result<DimensionLoadStats>> LoadAsync(CancellationToken cancellationToken = default)
     {
-        // Writing zero lemmas because the model failed to load would look like a corpus with no
-        // keywords. Indicator 5.2 would come back empty and nothing would say why.
         if (!_tokenAnalyzer.IsReady)
         {
             return Result<DimensionLoadStats>.Failure(new PreconditionError(
@@ -70,7 +68,6 @@ public sealed class PalabraClaveLoader : IDimensionLoader
             {
                 SkPalabra = nextKey++,
                 Palabra = entry.Key,
-                Frecuencia = entry.Value,
             });
         }
 
@@ -118,11 +115,9 @@ public sealed class PalabraClaveLoader : IDimensionLoader
                 continue;
             }
 
-            // ExtractLemmas already de-duplicates inside one comment, which is what keeps the
-            // future Hechos.HechoOpinionPalabra from violating its (IdFactOpinion, SKPalabra) key.
             foreach (var lemma in _tokenAnalyzer.ExtractLemmas(text!))
             {
-                var word = RawValueParsing.Truncate(lemma, PalabraClave.MaxLength);
+                var word = RawValueParsing.Truncate(lemma, DimensionSentinels.PalabraMaxLength);
                 frequencies[word] = frequencies.GetValueOrDefault(word) + 1;
             }
         }

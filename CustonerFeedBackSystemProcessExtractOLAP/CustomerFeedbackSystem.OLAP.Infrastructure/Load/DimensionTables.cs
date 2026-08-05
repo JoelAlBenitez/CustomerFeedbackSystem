@@ -12,7 +12,6 @@ public static class DimensionTables
     public const string HechoOpiniones = "[Hechos].[HechoOpiniones]";
     public const string HechoOpinionPalabra = "[Hechos].[HechoOpinionPalabra]";
 
-    // DimFecha is absent: its SkFecha is not an IDENTITY column.
     public static IReadOnlyList<(string Table, string IdentityColumn)> IdentityDimensions { get; } =
     [
         (DimCliente, "SkCliente"),

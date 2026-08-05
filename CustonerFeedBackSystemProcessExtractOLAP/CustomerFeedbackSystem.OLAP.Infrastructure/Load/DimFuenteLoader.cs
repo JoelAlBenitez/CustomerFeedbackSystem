@@ -56,14 +56,22 @@ public sealed class DimFuenteLoader : IDimensionLoader
 
         foreach (var source in surveySources)
         {
-            rows.Add(Build(nextKey++, DimFuente.CanalEncuestas, source, DimFuente.TipoCargaCsv));
+            rows.Add(Build(nextKey++, DimensionSentinels.CanalEncuestas, source, DimensionSentinels.TipoCargaCsv));
         }
 
-        rows.Add(Build(nextKey++, DimFuente.CanalResenasWeb, WebSourceDetail, DimFuente.TipoCargaBaseDatos));
+        rows.Add(Build(
+            nextKey++,
+            DimensionSentinels.CanalResenasWeb,
+            WebSourceDetail,
+            DimensionSentinels.TipoCargaBaseDatos));
 
         foreach (var platform in platforms)
         {
-            rows.Add(Build(nextKey++, DimFuente.CanalRedesSociales, platform, DimFuente.TipoCargaApi));
+            rows.Add(Build(
+                nextKey++,
+                DimensionSentinels.CanalRedesSociales,
+                platform,
+                DimensionSentinels.TipoCargaApi));
         }
 
         await SqlDimensionWriter.WriteAsync(
@@ -106,9 +114,8 @@ public sealed class DimFuenteLoader : IDimensionLoader
             stats.RecordRead();
 
             var raw = reader.IsDBNull(0) ? null : reader.GetString(0);
-
-            // A '-' here is not a channel of its own: staging simply had nothing to write.
             var value = RawValueParsing.OrUnknownAttribute(raw);
+
             if (!values.Contains(value, StringComparer.OrdinalIgnoreCase))
             {
                 values.Add(value);

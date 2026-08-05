@@ -12,6 +12,8 @@ namespace CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 
 public sealed class DimProductoLoader : IDimensionLoader
 {
+    public const int UnknownKey = 1;
+
     private const int NombreWidth = 100;
     private const int CategoriaWidth = 50;
 
@@ -49,9 +51,18 @@ public sealed class DimProductoLoader : IDimensionLoader
 
         var stats = new DimensionLoadStats(DimensionName, TableName);
 
-        // SK 1 before anything else, so the unknown member has the same key on every run.
-        var rows = new List<DimProducto> { DimProducto.UnknownMember(1) };
-        var nextKey = 2;
+        var rows = new List<DimProducto>
+        {
+            new()
+            {
+                SkProducto = UnknownKey,
+                NkProducto = null,
+                Nombre = DimensionSentinels.UnknownMember,
+                Categoria = DimensionSentinels.UncategorizedProduct,
+            },
+        };
+
+        var nextKey = UnknownKey + 1;
 
         await using (var oltp = new SqlConnection(_oltpConnectionString))
         {

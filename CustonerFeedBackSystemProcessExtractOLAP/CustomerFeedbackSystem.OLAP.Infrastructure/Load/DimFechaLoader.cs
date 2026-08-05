@@ -40,20 +40,7 @@ public sealed class DimFechaLoader : IDimensionLoader
 
         var (minDate, maxDate) = await ReadObservedRangeAsync(stats, cancellationToken);
 
-        var rows = new List<DimFecha>
-        {
-            // Written first and always: the T phase sends here every date it cannot parse, so the
-            // opinion survives with its comment, its channel and its score intact.
-            new()
-            {
-                SkFecha = DimensionSentinels.UnknownDateKey,
-                FechaCompleta = DimensionSentinels.UnknownDate,
-                Dia = DimensionSentinels.UnknownDate.Day,
-                Mes = DimensionSentinels.UnknownDate.Month,
-                Anio = DimensionSentinels.UnknownDate.Year,
-                Trimestre = 1,
-            },
-        };
+        var rows = new List<DimFecha> { BuildUnknownMember() };
 
         if (minDate is not null && maxDate is not null)
         {
@@ -62,7 +49,7 @@ public sealed class DimFechaLoader : IDimensionLoader
 
             for (var date = from; date <= to; date = date.AddDays(1))
             {
-                rows.Add(DimFecha.ForDate(date));
+                rows.Add(BuildForDate(date));
             }
 
             stats.Note = $"{from:yyyy-MM-dd} … {to:yyyy-MM-dd}";
@@ -83,6 +70,26 @@ public sealed class DimFechaLoader : IDimensionLoader
         stats.RecordWritten(rows.Count);
         return Result<DimensionLoadStats>.Success(stats);
     }
+
+    private static DimFecha BuildUnknownMember() => new()
+    {
+        SkFecha = DimensionSentinels.UnknownDateKey,
+        FechaCompleta = DimensionSentinels.UnknownDate,
+        Dia = DimensionSentinels.UnknownDate.Day,
+        Mes = DimensionSentinels.UnknownDate.Month,
+        Anio = DimensionSentinels.UnknownDate.Year,
+        Trimestre = 1,
+    };
+
+    private static DimFecha BuildForDate(DateTime date) => new()
+    {
+        SkFecha = (date.Year * 10_000) + (date.Month * 100) + date.Day,
+        FechaCompleta = date.Date,
+        Dia = date.Day,
+        Mes = date.Month,
+        Anio = date.Year,
+        Trimestre = ((date.Month - 1) / 3) + 1,
+    };
 
     private async Task<(DateTime? Min, DateTime? Max)> ReadObservedRangeAsync(
         DimensionLoadStats stats,
