@@ -14,6 +14,8 @@ public sealed class FactLoadReport
 
     public ClassifierAgreement Agreement { get; set; } = new();
 
+    public FactResetOutcome Reset { get; set; } = FactResetOutcome.Empty;
+
     public TimeSpan Elapsed { get; set; }
 
     public bool Committed { get; set; }

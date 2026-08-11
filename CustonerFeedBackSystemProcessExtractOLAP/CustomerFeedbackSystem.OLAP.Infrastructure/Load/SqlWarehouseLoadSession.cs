@@ -35,6 +35,7 @@ public sealed class SqlWarehouseLoadSession : IWarehouseLoadSession
     {
         try
         {
+            _completed = false;
             _connection = new SqlConnection(_connectionString);
             await _connection.OpenAsync(cancellationToken);
             _transaction = (SqlTransaction)await _connection.BeginTransactionAsync(cancellationToken);

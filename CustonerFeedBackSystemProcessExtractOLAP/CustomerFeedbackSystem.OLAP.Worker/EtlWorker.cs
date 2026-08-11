@@ -10,12 +10,15 @@ public sealed class EtlWorker : BackgroundService
 {
     private const string ExtractionTitle = "CustomerFeedbackSystem OLAP — Proceso de Extracción";
     private const string LoadTitle = "CustomerFeedbackSystem OLAP — Carga de Dimensiones";
+    private const string FactsTitle = "CustomerFeedbackSystem OLAP — Carga de Tablas de Hechos";
 
     private readonly EtlPhase _phase;
     private readonly ExtractionPipeline _extractionPipeline;
     private readonly DimensionLoadPipeline _dimensionLoadPipeline;
+    private readonly FactLoadPipeline _factLoadPipeline;
     private readonly OltpAvailabilityProbe _oltpProbe;
     private readonly StagingReadinessProbe _stagingProbe;
+    private readonly DimensionReadinessProbe _dimensionProbe;
     private readonly ITokenAnalyzer _tokenAnalyzer;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly ILogger<EtlWorker> _logger;
@@ -24,8 +27,10 @@ public sealed class EtlWorker : BackgroundService
         EtlRunOptions runOptions,
         ExtractionPipeline extractionPipeline,
         DimensionLoadPipeline dimensionLoadPipeline,
+        FactLoadPipeline factLoadPipeline,
         OltpAvailabilityProbe oltpProbe,
         StagingReadinessProbe stagingProbe,
+        DimensionReadinessProbe dimensionProbe,
         ITokenAnalyzer tokenAnalyzer,
         IHostApplicationLifetime lifetime,
         ILogger<EtlWorker> logger)
@@ -33,8 +38,10 @@ public sealed class EtlWorker : BackgroundService
         _phase = runOptions.Phase;
         _extractionPipeline = extractionPipeline;
         _dimensionLoadPipeline = dimensionLoadPipeline;
+        _factLoadPipeline = factLoadPipeline;
         _oltpProbe = oltpProbe;
         _stagingProbe = stagingProbe;
+        _dimensionProbe = dimensionProbe;
         _tokenAnalyzer = tokenAnalyzer;
         _lifetime = lifetime;
         _logger = logger;
@@ -53,9 +60,14 @@ public sealed class EtlWorker : BackgroundService
                 return;
             }
 
-            if (_phase.IncludesLoad())
+            if (_phase.IncludesLoad() && !await RunDimensionLoadAsync(stoppingToken))
             {
-                await RunDimensionLoadAsync(stoppingToken);
+                return;
+            }
+
+            if (_phase.IncludesFacts())
+            {
+                await RunFactLoadAsync(stoppingToken);
             }
         }
         catch (OperationCanceledException)
@@ -103,14 +115,14 @@ public sealed class EtlWorker : BackgroundService
         return false;
     }
 
-    private async Task RunDimensionLoadAsync(CancellationToken cancellationToken)
+    private async Task<bool> RunDimensionLoadAsync(CancellationToken cancellationToken)
     {
         var ready = await _stagingProbe.EnsurePopulatedAsync(cancellationToken);
         if (ready.IsFailure)
         {
             _logger.LogError("Dimension load precondition not met: {Error}", ready.Errors[0]);
             Environment.ExitCode = 1;
-            return;
+            return false;
         }
 
         DimensionLoadReport report;
@@ -120,6 +132,41 @@ public sealed class EtlWorker : BackgroundService
         }
 
         ConsoleDimensionReportRenderer.Render(report, LoadTitle, DateTime.Now);
+
+        if (report.Committed)
+        {
+            return true;
+        }
+
+        Environment.ExitCode = 1;
+
+        if (_phase == EtlPhase.Full)
+        {
+            _logger.LogError(
+                "The dimension load was rolled back, so the fact load was skipped. "
+                + "Fix the cause and rerun, or force the fact load with --phase Facts.");
+        }
+
+        return false;
+    }
+
+    private async Task RunFactLoadAsync(CancellationToken cancellationToken)
+    {
+        var ready = await _dimensionProbe.EnsurePopulatedAsync(cancellationToken);
+        if (ready.IsFailure)
+        {
+            _logger.LogError("Fact load precondition not met: {Error}", ready.Errors[0]);
+            Environment.ExitCode = 1;
+            return;
+        }
+
+        FactLoadReport report;
+        await using (new ConsoleSpinner("Cargando tablas de hechos del Data Warehouse..."))
+        {
+            report = await _factLoadPipeline.RunAsync(cancellationToken);
+        }
+
+        ConsoleFactReportRenderer.Render(report, FactsTitle, DateTime.Now);
 
         if (!report.Committed)
         {

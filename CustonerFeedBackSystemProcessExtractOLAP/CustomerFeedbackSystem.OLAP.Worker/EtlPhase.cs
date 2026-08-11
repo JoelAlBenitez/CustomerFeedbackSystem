@@ -4,6 +4,7 @@ public enum EtlPhase
 {
     Extract,
     Load,
+    Facts,
     Full,
 }
 
@@ -17,4 +18,6 @@ public static class EtlPhaseParser
     public static bool IncludesExtract(this EtlPhase phase) => phase is EtlPhase.Extract or EtlPhase.Full;
 
     public static bool IncludesLoad(this EtlPhase phase) => phase is EtlPhase.Load or EtlPhase.Full;
+
+    public static bool IncludesFacts(this EtlPhase phase) => phase is EtlPhase.Facts or EtlPhase.Full;
 }

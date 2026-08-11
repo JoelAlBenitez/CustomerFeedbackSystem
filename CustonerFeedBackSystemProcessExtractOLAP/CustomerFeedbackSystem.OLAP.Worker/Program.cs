@@ -42,6 +42,7 @@ var phase = EtlPhaseParser.Parse(builder.Configuration[EtlPhaseParser.Configurat
 
 builder.Services.AddExtractionPipeline(builder.Configuration);
 builder.Services.AddDimensionLoad(builder.Configuration);
+builder.Services.AddFactLoad();
 builder.Services.AddEtlWorker(phase);
 
 var host = builder.Build();

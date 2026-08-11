@@ -48,6 +48,8 @@ public sealed class FactLoadPipeline
                 return Abort(report, stopwatch, reset.Errors[0]);
             }
 
+            report.Reset = reset.Value;
+
             var result = await RunLoaderAsync(cancellationToken);
 
             if (result.IsFailure)

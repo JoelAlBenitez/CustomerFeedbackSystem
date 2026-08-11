@@ -88,6 +88,18 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddFactLoad(this IServiceCollection services)
+    {
+        services.AddSingleton<ISentimentClassifier, LexiconSentimentClassifier>();
+        services.AddSingleton<IFactResetService, FactResetService>();
+        services.AddSingleton<IFactLoader, HechoOpinionLoader>();
+        services.AddSingleton<DimensionReadinessProbe>();
+
+        services.AddSingleton<FactLoadPipeline>();
+
+        return services;
+    }
+
     public static IServiceCollection AddEtlWorker(this IServiceCollection services, EtlPhase phase)
     {
         services.AddSingleton(new EtlRunOptions { Phase = phase });
