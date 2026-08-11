@@ -21,13 +21,13 @@ public sealed class DimClienteLoader : IDimensionLoader
     private static readonly string[] Columns =
         ["SkCliente", "NkCliente", "Nombre", "Pais", "RangoEdad", "TipoCliente", "EsAnonimo"];
 
-    private readonly SqlDimensionLoadSession _session;
+    private readonly SqlWarehouseLoadSession _session;
     private readonly string _oltpConnectionString;
     private readonly DimensionLoadOptions _options;
     private readonly ILogger<DimClienteLoader> _logger;
 
     public DimClienteLoader(
-        SqlDimensionLoadSession session,
+        SqlWarehouseLoadSession session,
         IOptions<OltpConnectionOptions> oltpConnection,
         IOptions<DimensionLoadOptions> options,
         ILogger<DimClienteLoader> logger)
@@ -40,7 +40,7 @@ public sealed class DimClienteLoader : IDimensionLoader
 
     public string DimensionName => "DimCliente";
 
-    public string TableName => DimensionTables.DimCliente;
+    public string TableName => WarehouseTables.DimCliente;
 
     public int Order => 5;
 
@@ -107,12 +107,12 @@ public sealed class DimClienteLoader : IDimensionLoader
                 collapsed, DimensionSentinels.AnonymousMember);
         }
 
-        await SqlDimensionWriter.WriteAsync(
+        await SqlWarehouseWriter.WriteAsync(
             _session, TableName, Columns, rows,
             r => [r.SkCliente, r.NkCliente, r.Nombre, r.Pais, r.RangoEdad, r.TipoCliente, r.EsAnonimo],
             _options.CommandTimeoutSeconds, cancellationToken);
 
-        await SqlDimensionWriter.ReseedAsync(
+        await SqlWarehouseWriter.ReseedAsync(
             _session, TableName, rows.Count, _options.CommandTimeoutSeconds, cancellationToken);
 
         stats.RecordWritten(rows.Count);

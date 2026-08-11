@@ -61,6 +61,32 @@ public static class RawValueParsing
             && int.TryParse(value[start..], NumberStyles.Integer, CultureInfo.InvariantCulture, out id);
     }
 
+    public static int ToDateKey(DateTime date) =>
+        (date.Year * 10_000) + (date.Month * 100) + date.Day;
+
+    public static bool TryParseScore(string? raw, out byte score)
+    {
+        score = 0;
+
+        if (DimensionSentinels.IsMissing(raw))
+        {
+            return false;
+        }
+
+        if (!int.TryParse(raw!.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+        {
+            return false;
+        }
+
+        if (value is < 1 or > 5)
+        {
+            return false;
+        }
+
+        score = (byte)value;
+        return true;
+    }
+
     public static string Truncate(string value, int maxLength) =>
         value.Length <= maxLength ? value : value[..maxLength];
 

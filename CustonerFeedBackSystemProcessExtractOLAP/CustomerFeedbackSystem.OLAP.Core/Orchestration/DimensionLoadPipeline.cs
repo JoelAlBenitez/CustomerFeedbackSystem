@@ -9,13 +9,13 @@ namespace CustomerFeedbackSystem.OLAP.Core.Orchestration;
 
 public sealed class DimensionLoadPipeline
 {
-    private readonly IDimensionLoadSession _session;
+    private readonly IWarehouseLoadSession _session;
     private readonly IDimensionResetService _resetService;
     private readonly IReadOnlyList<IDimensionLoader> _loaders;
     private readonly ILogger<DimensionLoadPipeline> _logger;
 
     public DimensionLoadPipeline(
-        IDimensionLoadSession session,
+        IWarehouseLoadSession session,
         IDimensionResetService resetService,
         IEnumerable<IDimensionLoader> loaders,
         ILogger<DimensionLoadPipeline> logger)

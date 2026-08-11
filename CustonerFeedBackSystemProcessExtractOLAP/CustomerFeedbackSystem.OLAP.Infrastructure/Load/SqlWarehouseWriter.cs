@@ -3,10 +3,10 @@ using Microsoft.Data.SqlClient;
 
 namespace CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 
-internal static class SqlDimensionWriter
+internal static class SqlWarehouseWriter
 {
     public static async Task WriteAsync<T>(
-        SqlDimensionLoadSession session,
+        SqlWarehouseLoadSession session,
         string qualifiedTable,
         IReadOnlyList<string> columns,
         IReadOnlyCollection<T> rows,
@@ -55,7 +55,7 @@ internal static class SqlDimensionWriter
     }
 
     public static async Task ReseedAsync(
-        SqlDimensionLoadSession session,
+        SqlWarehouseLoadSession session,
         string qualifiedTable,
         int lastAssignedId,
         int timeoutSeconds,

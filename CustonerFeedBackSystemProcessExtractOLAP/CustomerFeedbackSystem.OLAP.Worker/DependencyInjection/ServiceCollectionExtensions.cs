@@ -71,8 +71,8 @@ public static class ServiceCollectionExtensions
                 "Load:DateDimensionPaddingYears must be between 0 and 10.")
             .ValidateOnStart();
 
-        services.AddSingleton<SqlDimensionLoadSession>();
-        services.AddSingleton<IDimensionLoadSession>(sp => sp.GetRequiredService<SqlDimensionLoadSession>());
+        services.AddSingleton<SqlWarehouseLoadSession>();
+        services.AddSingleton<IWarehouseLoadSession>(sp => sp.GetRequiredService<SqlWarehouseLoadSession>());
         services.AddSingleton<IDimensionResetService, DimensionResetService>();
         services.AddSingleton<StagingReadinessProbe>();
 

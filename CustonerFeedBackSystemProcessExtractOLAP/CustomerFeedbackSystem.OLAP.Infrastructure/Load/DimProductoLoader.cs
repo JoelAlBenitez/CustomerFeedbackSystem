@@ -19,12 +19,12 @@ public sealed class DimProductoLoader : IDimensionLoader
 
     private static readonly string[] Columns = ["SkProducto", "NkProducto", "Nombre", "Categoria"];
 
-    private readonly SqlDimensionLoadSession _session;
+    private readonly SqlWarehouseLoadSession _session;
     private readonly string _oltpConnectionString;
     private readonly DimensionLoadOptions _options;
 
     public DimProductoLoader(
-        SqlDimensionLoadSession session,
+        SqlWarehouseLoadSession session,
         IOptions<OltpConnectionOptions> oltpConnection,
         IOptions<DimensionLoadOptions> options)
     {
@@ -35,7 +35,7 @@ public sealed class DimProductoLoader : IDimensionLoader
 
     public string DimensionName => "DimProducto";
 
-    public string TableName => DimensionTables.DimProducto;
+    public string TableName => WarehouseTables.DimProducto;
 
     public int Order => 4;
 
@@ -87,12 +87,12 @@ public sealed class DimProductoLoader : IDimensionLoader
             }
         }
 
-        await SqlDimensionWriter.WriteAsync(
+        await SqlWarehouseWriter.WriteAsync(
             _session, TableName, Columns, rows,
             r => [r.SkProducto, r.NkProducto, r.Nombre, r.Categoria],
             _options.CommandTimeoutSeconds, cancellationToken);
 
-        await SqlDimensionWriter.ReseedAsync(
+        await SqlWarehouseWriter.ReseedAsync(
             _session, TableName, rows.Count, _options.CommandTimeoutSeconds, cancellationToken);
 
         stats.RecordWritten(rows.Count);

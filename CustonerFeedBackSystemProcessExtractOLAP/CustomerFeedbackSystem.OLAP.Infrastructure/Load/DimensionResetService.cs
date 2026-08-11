@@ -12,16 +12,16 @@ public sealed class DimensionResetService : IDimensionResetService
 {
     private const string FactCountQuery = $"""
         SELECT
-            (SELECT COUNT(*) FROM {DimensionTables.HechoOpiniones})      AS Opiniones,
-            (SELECT COUNT(*) FROM {DimensionTables.HechoOpinionPalabra}) AS Palabras;
+            (SELECT COUNT(*) FROM {WarehouseTables.HechoOpiniones})      AS Opiniones,
+            (SELECT COUNT(*) FROM {WarehouseTables.HechoOpinionPalabra}) AS Palabras;
         """;
 
-    private readonly SqlDimensionLoadSession _session;
+    private readonly SqlWarehouseLoadSession _session;
     private readonly DimensionLoadOptions _options;
     private readonly ILogger<DimensionResetService> _logger;
 
     public DimensionResetService(
-        SqlDimensionLoadSession session,
+        SqlWarehouseLoadSession session,
         IOptions<DimensionLoadOptions> options,
         ILogger<DimensionResetService> logger)
     {
@@ -40,16 +40,16 @@ public sealed class DimensionResetService : IDimensionResetService
                 return guard;
             }
 
-            foreach (var (table, identityColumn) in DimensionTables.IdentityDimensions)
+            foreach (var (table, identityColumn) in WarehouseTables.IdentityDimensions)
             {
                 await ExecuteAsync($"DELETE FROM {table};", cancellationToken);
-                await SqlDimensionWriter.ReseedAsync(
+                await SqlWarehouseWriter.ReseedAsync(
                     _session, table, 0, _options.CommandTimeoutSeconds, cancellationToken);
 
                 _logger.LogDebug("{Table} emptied and {Column} reseeded.", table, identityColumn);
             }
 
-            await ExecuteAsync($"DELETE FROM {DimensionTables.DimFecha};", cancellationToken);
+            await ExecuteAsync($"DELETE FROM {WarehouseTables.DimFecha};", cancellationToken);
 
             _logger.LogInformation("All six dimensions emptied for a full refresh.");
             return Result.Success();
@@ -89,8 +89,8 @@ public sealed class DimensionResetService : IDimensionResetService
 
         return Result.Failure(new PreconditionError(
             "empty fact tables",
-            $"{DimensionTables.HechoOpiniones} has {opiniones} row(s) and "
-            + $"{DimensionTables.HechoOpinionPalabra} has {palabras}. Reloading the dimensions "
+            $"{WarehouseTables.HechoOpiniones} has {opiniones} row(s) and "
+            + $"{WarehouseTables.HechoOpinionPalabra} has {palabras}. Reloading the dimensions "
             + "reassigns every surrogate key, so the facts must be emptied first."));
     }
 

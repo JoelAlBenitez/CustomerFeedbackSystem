@@ -52,10 +52,10 @@ public sealed class DimClasificacionLoader : IDimensionLoader
         },
     ];
 
-    private readonly SqlDimensionLoadSession _session;
+    private readonly SqlWarehouseLoadSession _session;
     private readonly DimensionLoadOptions _options;
 
-    public DimClasificacionLoader(SqlDimensionLoadSession session, IOptions<DimensionLoadOptions> options)
+    public DimClasificacionLoader(SqlWarehouseLoadSession session, IOptions<DimensionLoadOptions> options)
     {
         _session = session;
         _options = options.Value;
@@ -63,7 +63,7 @@ public sealed class DimClasificacionLoader : IDimensionLoader
 
     public string DimensionName => "DimClasificacion";
 
-    public string TableName => DimensionTables.DimClasificacion;
+    public string TableName => WarehouseTables.DimClasificacion;
 
     public int Order => 3;
 
@@ -72,12 +72,12 @@ public sealed class DimClasificacionLoader : IDimensionLoader
         var stats = new DimensionLoadStats(DimensionName, TableName);
         stats.RecordRead(Members.Length);
 
-        await SqlDimensionWriter.WriteAsync(
+        await SqlWarehouseWriter.WriteAsync(
             _session, TableName, Columns, Members,
             r => [r.SkClasificacion, r.Clasificacion, r.PuntajeBase, r.EsPositiva, r.EsNegativa, r.EsNeutra],
             _options.CommandTimeoutSeconds, cancellationToken);
 
-        await SqlDimensionWriter.ReseedAsync(
+        await SqlWarehouseWriter.ReseedAsync(
             _session, TableName, Members.Length, _options.CommandTimeoutSeconds, cancellationToken);
 
         stats.RecordWritten(Members.Length);

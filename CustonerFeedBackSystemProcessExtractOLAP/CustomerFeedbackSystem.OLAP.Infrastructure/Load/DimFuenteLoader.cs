@@ -19,10 +19,10 @@ public sealed class DimFuenteLoader : IDimensionLoader
 
     private static readonly string[] Columns = ["SkFuente", "Canal", "FuenteDetalle", "TipoCarga"];
 
-    private readonly SqlDimensionLoadSession _session;
+    private readonly SqlWarehouseLoadSession _session;
     private readonly DimensionLoadOptions _options;
 
-    public DimFuenteLoader(SqlDimensionLoadSession session, IOptions<DimensionLoadOptions> options)
+    public DimFuenteLoader(SqlWarehouseLoadSession session, IOptions<DimensionLoadOptions> options)
     {
         _session = session;
         _options = options.Value;
@@ -30,7 +30,7 @@ public sealed class DimFuenteLoader : IDimensionLoader
 
     public string DimensionName => "DimFuente";
 
-    public string TableName => DimensionTables.DimFuente;
+    public string TableName => WarehouseTables.DimFuente;
 
     public int Order => 2;
 
@@ -74,12 +74,12 @@ public sealed class DimFuenteLoader : IDimensionLoader
                 DimensionSentinels.TipoCargaApi));
         }
 
-        await SqlDimensionWriter.WriteAsync(
+        await SqlWarehouseWriter.WriteAsync(
             _session, TableName, Columns, rows,
             r => [r.SkFuente, r.Canal, r.FuenteDetalle, r.TipoCarga],
             _options.CommandTimeoutSeconds, cancellationToken);
 
-        await SqlDimensionWriter.ReseedAsync(
+        await SqlWarehouseWriter.ReseedAsync(
             _session, TableName, rows.Count, _options.CommandTimeoutSeconds, cancellationToken);
 
         stats.RecordWritten(rows.Count);

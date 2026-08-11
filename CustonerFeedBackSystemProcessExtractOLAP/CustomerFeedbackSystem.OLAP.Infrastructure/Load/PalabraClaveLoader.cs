@@ -14,13 +14,13 @@ public sealed class PalabraClaveLoader : IDimensionLoader
 {
     private static readonly string[] Columns = ["SKPalabra", "palabra"];
 
-    private readonly SqlDimensionLoadSession _session;
+    private readonly SqlWarehouseLoadSession _session;
     private readonly ITokenAnalyzer _tokenAnalyzer;
     private readonly DimensionLoadOptions _options;
     private readonly ILogger<PalabraClaveLoader> _logger;
 
     public PalabraClaveLoader(
-        SqlDimensionLoadSession session,
+        SqlWarehouseLoadSession session,
         ITokenAnalyzer tokenAnalyzer,
         IOptions<DimensionLoadOptions> options,
         ILogger<PalabraClaveLoader> logger)
@@ -33,7 +33,7 @@ public sealed class PalabraClaveLoader : IDimensionLoader
 
     public string DimensionName => "PalabraClave";
 
-    public string TableName => DimensionTables.PalabraClave;
+    public string TableName => WarehouseTables.PalabraClave;
 
     public int Order => 6;
 
@@ -73,12 +73,12 @@ public sealed class PalabraClaveLoader : IDimensionLoader
 
         stats.RecordDiscarded(discarded);
 
-        await SqlDimensionWriter.WriteAsync(
+        await SqlWarehouseWriter.WriteAsync(
             _session, TableName, Columns, rows,
             r => [r.SkPalabra, r.Palabra],
             _options.CommandTimeoutSeconds, cancellationToken);
 
-        await SqlDimensionWriter.ReseedAsync(
+        await SqlWarehouseWriter.ReseedAsync(
             _session, TableName, rows.Count, _options.CommandTimeoutSeconds, cancellationToken);
 
         stats.RecordWritten(rows.Count);

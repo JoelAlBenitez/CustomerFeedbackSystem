@@ -14,12 +14,12 @@ public sealed class DimFechaLoader : IDimensionLoader
     private static readonly string[] Columns =
         ["SkFecha", "FechaCompleta", "Dia", "Mes", "Anio", "Trimestre"];
 
-    private readonly SqlDimensionLoadSession _session;
+    private readonly SqlWarehouseLoadSession _session;
     private readonly DimensionLoadOptions _options;
     private readonly ILogger<DimFechaLoader> _logger;
 
     public DimFechaLoader(
-        SqlDimensionLoadSession session,
+        SqlWarehouseLoadSession session,
         IOptions<DimensionLoadOptions> options,
         ILogger<DimFechaLoader> logger)
     {
@@ -30,7 +30,7 @@ public sealed class DimFechaLoader : IDimensionLoader
 
     public string DimensionName => "DimFecha";
 
-    public string TableName => DimensionTables.DimFecha;
+    public string TableName => WarehouseTables.DimFecha;
 
     public int Order => 1;
 
@@ -62,7 +62,7 @@ public sealed class DimFechaLoader : IDimensionLoader
                 DimensionSentinels.UnknownDateKey);
         }
 
-        await SqlDimensionWriter.WriteAsync(
+        await SqlWarehouseWriter.WriteAsync(
             _session, TableName, Columns, rows,
             r => [r.SkFecha, r.FechaCompleta, r.Dia, r.Mes, r.Anio, r.Trimestre],
             _options.CommandTimeoutSeconds, cancellationToken);
@@ -83,7 +83,7 @@ public sealed class DimFechaLoader : IDimensionLoader
 
     private static DimFecha BuildForDate(DateTime date) => new()
     {
-        SkFecha = (date.Year * 10_000) + (date.Month * 100) + date.Day,
+        SkFecha = RawValueParsing.ToDateKey(date),
         FechaCompleta = date.Date,
         Dia = date.Day,
         Mes = date.Month,

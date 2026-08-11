@@ -1,6 +1,6 @@
 namespace CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 
-public static class DimensionTables
+public static class WarehouseTables
 {
     public const string DimFecha = "[Dimenciones].[DimFecha]";
     public const string DimCliente = "[Dimenciones].[DimCliente]";

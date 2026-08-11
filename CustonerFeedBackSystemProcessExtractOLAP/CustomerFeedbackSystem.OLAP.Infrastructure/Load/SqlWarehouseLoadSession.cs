@@ -8,18 +8,18 @@ using Microsoft.Extensions.Options;
 
 namespace CustomerFeedbackSystem.OLAP.Infrastructure.Load;
 
-public sealed class SqlDimensionLoadSession : IDimensionLoadSession
+public sealed class SqlWarehouseLoadSession : IWarehouseLoadSession
 {
     private readonly string _connectionString;
-    private readonly ILogger<SqlDimensionLoadSession> _logger;
+    private readonly ILogger<SqlWarehouseLoadSession> _logger;
 
     private SqlConnection? _connection;
     private SqlTransaction? _transaction;
     private bool _completed;
 
-    public SqlDimensionLoadSession(
+    public SqlWarehouseLoadSession(
         IOptions<OlapConnectionOptions> connectionOptions,
-        ILogger<SqlDimensionLoadSession> logger)
+        ILogger<SqlWarehouseLoadSession> logger)
     {
         _connectionString = connectionOptions.Value.ConnectionString;
         _logger = logger;

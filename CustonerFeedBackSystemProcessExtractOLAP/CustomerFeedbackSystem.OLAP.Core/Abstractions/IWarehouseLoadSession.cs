@@ -2,7 +2,7 @@ using CustomerFeedbackSystem.OLAP.Core.Common;
 
 namespace CustomerFeedbackSystem.OLAP.Core.Abstractions;
 
-public interface IDimensionLoadSession : IAsyncDisposable
+public interface IWarehouseLoadSession : IAsyncDisposable
 {
     Task<Result> OpenAsync(CancellationToken cancellationToken = default);
 
